@@ -1,6 +1,7 @@
-./venv
-./tutorials
+venv
+tutorials
 __pycache__
-./Documents
-./LuaDolphin
-./dolphin
+Documents
+LuaDolphin
+dolphin
+*.log
