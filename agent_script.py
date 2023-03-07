@@ -1,16 +1,18 @@
 import sys
+import time
 sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages")
-from dolphin import event, gui, controller
+
 from PIL import Image
+from pynput.keyboard import Controller, Key
 
-red = 0xffff0000
-frame_counter = 0
+from dolphin import event, gui, controller, savestate
 
-# Initialize all our possible inputs.
+# Initialize all our possible GCInputs.
+# https://github.com/Felk/dolphin/blob/master/python-stubs/dolphin/controller.pyi
 wheelie_forward = {'Left': False,
                     'Right': False,
                     'Down': False,
-                    'Up': False,
+                    'Up': False, # We want to mash wheelie, not hold it, so leave it as False for now
                     'Z': False,
                     'R': False,
                     'L': False,
@@ -43,6 +45,19 @@ drift_right = wheelie_forward.copy()
 drift_right['B'] = True
 drift_right['StickX'] = 255
 
+# Misc instantiations
+keyboard = Controller()
+log = open("C:\\code\\dolphin_env\\agent_script.log", 'w')
+logging = False
+if not logging:
+    log.close()
+red = 0xffff0000
+frame_counter = 0
+
+if logging:
+    log.write("loading save state\n")
+savestate.load_from_slot(1)
+
 while True:
     (width, height, data) = await event.framedrawn()
     
@@ -51,17 +66,24 @@ while True:
     wheelie_left['Up'] = wheelie_forward['Up']
     wheelie_right['Up'] = wheelie_forward['Up']
 
-    # reset if speed falls below threshold
-    # if speed < 37:
-    #     reset()
-    #     frame_counter = 0
-    #     continue
+    speed = 500 - frame_counter
+    if speed < 37:
+        if logging:
+            log.write("resetting\n")
+        frame_counter = 0
+        # workaround for save state load issue https://github.com/Felk/dolphin/issues/32
+        keyboard.press(Key.f1)
+        time.sleep(0.1)
+        keyboard.release(Key.f1)
+        continue
 
     # get image data
     im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
-    pixels = list(im.getdata())
-    width, height = im.size
-    pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
+    pixels = list(im.getdata()) # can i just send "data"?
+    # width, height = im.size
+    # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
+
+    # get input from model and send it reward
 
     # send inputs
     if frame_counter >= 150 and frame_counter < 200:
