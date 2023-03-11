@@ -11,6 +11,6 @@
 - Get save state load workaround working
 
 # TODO
-- Implement MKW_Pointers.py, MKW_core.py
+- Implement GetXYZSpd(): MKW_Pointers.py, MKW_core.py
 
 - Implement ZeroMQ with dummy inputs
