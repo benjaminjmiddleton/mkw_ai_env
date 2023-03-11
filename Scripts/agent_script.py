@@ -48,7 +48,7 @@ drift_right['StickX'] = 255
 # Misc instantiations
 keyboard = Controller()
 log = open("C:\\code\\dolphin_env\\agent_script.log", 'w')
-logging = False
+logging = False # set to true for debugging
 if not logging:
     log.close()
 red = 0xffff0000
@@ -58,14 +58,21 @@ if logging:
     log.write("loading save state\n")
 savestate.load_from_slot(1)
 
+# main training loop
 while True:
     (width, height, data) = await event.framedrawn()
+    
+    # frame counter
+    frame_counter += 1
+    # draw on screen
+    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
     
     # mash wheelie (don't hold it)
     wheelie_forward['Up'] = not wheelie_forward['Up']
     wheelie_left['Up'] = wheelie_forward['Up']
     wheelie_right['Up'] = wheelie_forward['Up']
 
+    # reset if speed falls below threshold
     speed = 500 - frame_counter
     if speed < 37:
         if logging:
@@ -90,11 +97,3 @@ while True:
         controller.set_gc_buttons(0, drift_right)
     else:
         controller.set_gc_buttons(0, wheelie_forward)
-
-    # frame counter
-    frame_counter += 1
-    # draw on screen
-    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
-    # print to console
-    if frame_counter % 60 == 0:
-        print(f"The frame count has reached {frame_counter}")
