@@ -6,6 +6,7 @@ def GetGameID():
     id = bytes.fromhex(id).decode('utf-8')
     return id
 
+# getPointer: read a series of pointers and add an offset at each read
 def getPointer(pointer, offsets):
     for offset in offsets:
         pointer = memory.read_u32(pointer) + offset
