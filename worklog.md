@@ -10,7 +10,8 @@
 - Research Rainbow env, ZeroMQ
 - Get save state load workaround working
 
-# TODO
-- Implement GetXYZSpd(): MKW_Pointers.py, MKW_core.py
+# Saturday, March 11
+- Implement MKW_Pointers.py, MKW_core.py for GetXYZSpd()
 
+# TODO
 - Implement ZeroMQ with dummy inputs

@@ -7,6 +7,11 @@ from pynput.keyboard import Controller, Key
 
 from dolphin import event, gui, controller, savestate
 
+sys.path.append("C:\\code\\dolphin_env\\Scripts")
+import MKW_core
+
+##### INITIALIZATIONS #####
+
 # Initialize all our possible GCInputs.
 # https://github.com/Felk/dolphin/blob/master/python-stubs/dolphin/controller.pyi
 wheelie_forward = {'Left': False,
@@ -45,7 +50,7 @@ drift_right = wheelie_forward.copy()
 drift_right['B'] = True
 drift_right['StickX'] = 255
 
-# Misc instantiations
+# Misc initializations
 keyboard = Controller()
 log = open("C:\\code\\dolphin_env\\agent_script.log", 'w')
 logging = False # set to true for debugging
@@ -58,14 +63,12 @@ if logging:
     log.write("loading save state\n")
 savestate.load_from_slot(1)
 
-# main training loop
+##### MAIN TRAINING LOOP #####
 while True:
     (width, height, data) = await event.framedrawn()
     
     # frame counter
     frame_counter += 1
-    # draw on screen
-    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
     
     # mash wheelie (don't hold it)
     wheelie_forward['Up'] = not wheelie_forward['Up']
@@ -73,7 +76,7 @@ while True:
     wheelie_right['Up'] = wheelie_forward['Up']
 
     # reset if speed falls below threshold
-    speed = 500 - frame_counter
+    speed = MKW_core.getXYZSpd()
     if speed < 37:
         if logging:
             log.write("resetting\n")
@@ -91,6 +94,10 @@ while True:
     # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
 
     # get input from model and send it reward
+
+    # draw on screen
+    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
+    gui.draw_text((10, 30), red, f"Speed: {speed}")
 
     # send inputs
     if frame_counter >= 150 and frame_counter < 200:
