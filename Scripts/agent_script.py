@@ -1,13 +1,13 @@
 import sys
 import time
-sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages")
+sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages") # your python installation path
 
 from PIL import Image
 from pynput.keyboard import Controller, Key
 
 from dolphin import event, gui, controller, savestate
 
-sys.path.append("C:\\code\\dolphin_env\\Scripts")
+sys.path.append("C:\\code\\dolphin_env\\Scripts") # path to the folder this file is in
 import MKW_core
 
 ##### INITIALIZATIONS #####
@@ -49,6 +49,10 @@ drift_left['StickX'] = 0
 drift_right = wheelie_forward.copy()
 drift_right['B'] = True
 drift_right['StickX'] = 255
+
+drift_forward = wheelie_forward.copy()
+drift_forward['B'] = True
+drift_forward['StickX'] = 255
 
 # Misc initializations
 keyboard = Controller()
