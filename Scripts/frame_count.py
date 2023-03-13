@@ -2,7 +2,7 @@ import sys
 
 from dolphin import event, gui
 
-sys.path.append("C:\\code\\dolphin_env\\Scripts")
+sys.path.append("C:\\code\\dolphin_env\\Scripts") # path to the folder this file is in
 import MKW_Pointers
 import MKW_core
 
