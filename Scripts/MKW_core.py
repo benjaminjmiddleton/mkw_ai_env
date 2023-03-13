@@ -3,7 +3,7 @@ import math
 
 from dolphin import memory
 
-sys.path.append("C:\\code\\dolphin_env\\Scripts")
+sys.path.append("C:\\code\\dolphin_env\\Scripts") # path to the folder this file is in
 import MKW_Pointers as Pointers
 
 def getPos():
