@@ -7,10 +7,12 @@ A few functions have been reimplemented from the Dolphin-Lua-Core (https://githu
 # Notes for Setting This Up
 
 Because these scripts are run in the dolphin executable, you need to append the true path of the scripts you want to import using sys.path.append().
+
 In:
 - agent_script.py
 - frame_count.py
 - MKW_core.py
+
 the line "sys.path.append("C:\\\\code\\\\dolphin_env\\\\Scripts")" will need to be updated to whatever path you are using.
 
 For similar reasons, the path to your venv or python installation will also need to be appended in any script you include a package in.
