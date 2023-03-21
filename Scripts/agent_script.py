@@ -52,7 +52,6 @@ drift_right['StickX'] = 255
 
 drift_forward = wheelie_forward.copy()
 drift_forward['B'] = True
-drift_forward['StickX'] = 255
 
 # Misc initializations
 keyboard = Controller()
@@ -93,11 +92,11 @@ while True:
 
     # get image data
     im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
-    pixels = list(im.getdata()) # can i just send "data"?
+    pixels = list(im.getdata())
     # width, height = im.size
     # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
 
-    # get input from model and send it reward
+    # send model data and reward, wait for response (inputs)
 
     # draw on screen
     gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
