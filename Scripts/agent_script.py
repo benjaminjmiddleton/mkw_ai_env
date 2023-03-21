@@ -78,6 +78,18 @@ while True:
     wheelie_left['Up'] = wheelie_forward['Up']
     wheelie_right['Up'] = wheelie_forward['Up']
 
+    # get image data
+    im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
+    pixels = list(im.getdata())
+    # width, height = im.size
+    # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
+    
+    # draw on screen
+    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
+    gui.draw_text((10, 30), red, f"Speed: {speed}")
+
+    # get response from previous frame (if frame_count > 1)
+    
     # reset if speed falls below threshold
     speed = MKW_core.getXYZSpd()
     if speed < 37:
@@ -89,18 +101,8 @@ while True:
         time.sleep(0.1)
         keyboard.release(Key.f1)
         continue
-
-    # get image data
-    im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
-    pixels = list(im.getdata())
-    # width, height = im.size
-    # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
-
-    # send model data and reward, wait for response (inputs)
-
-    # draw on screen
-    gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
-    gui.draw_text((10, 30), red, f"Speed: {speed}")
+    
+    # send current frame's data and reward 
 
     # send inputs
     if frame_counter >= 150 and frame_counter < 200:
