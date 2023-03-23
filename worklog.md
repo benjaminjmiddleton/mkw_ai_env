@@ -13,5 +13,6 @@
 # Saturday, March 11
 - Implement MKW_Pointers.py, MKW_core.py for GetXYZSpd()
 
-# TODO
-- Implement ZeroMQ with dummy inputs
+# Wednesday, March 22
+- Implement GetRaceCompletion() in MKW_core.py
+- Implement socket with dummy inputs
