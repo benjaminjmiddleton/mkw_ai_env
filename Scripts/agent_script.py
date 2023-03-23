@@ -1,7 +1,9 @@
 import sys
 import time
-sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages") # your python installation path
+import json
+import socket
 
+sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages") # your python installation path
 from PIL import Image
 from pynput.keyboard import Controller, Key
 
@@ -53,15 +55,26 @@ drift_right['StickX'] = 255
 drift_forward = wheelie_forward.copy()
 drift_forward['B'] = True
 
-# Misc initializations
+# controller
 keyboard = Controller()
+
+# logging
 log = open("C:\\code\\dolphin_env\\agent_script.log", 'w')
 logging = False # set to true for debugging
 if not logging:
     log.close()
+
+# frame counter
 red = 0xffff0000
 frame_counter = 0
 
+# socket
+host = socket.gethostname()
+port = 5555
+sock = socket.socket()
+sock.connect((host, port))
+
+##### END INITIALIZATIONS #####
 if logging:
     log.write("loading save state\n")
 savestate.load_from_slot(1)
@@ -78,21 +91,21 @@ while True:
     wheelie_left['Up'] = wheelie_forward['Up']
     wheelie_right['Up'] = wheelie_forward['Up']
 
-    # get image data
+    # get game data
+    speed = MKW_core.getXYZSpd()
+    race_completion = MKW_core.getRaceCompletion()
     im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
     pixels = list(im.getdata())
-    # width, height = im.size
-    # pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
+    width, height = im.size
+    pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
     
     # draw on screen
     gui.draw_text((10, 10), red, f"Frame: {frame_counter}")
     gui.draw_text((10, 30), red, f"Speed: {speed}")
+    gui.draw_text((10, 50), red, f"Race Completion: {race_completion}")
 
-    # get response from previous frame (if frame_count > 1)
-    
-    # reset if speed falls below threshold
-    speed = MKW_core.getXYZSpd()
-    if speed < 37:
+    # reset if speed falls below threshold or race is complete
+    if speed < 37 or race_completion == 4:
         if logging:
             log.write("resetting\n")
         frame_counter = 0
@@ -101,11 +114,26 @@ while True:
         time.sleep(0.1)
         keyboard.release(Key.f1)
         continue
+
+    # get response from previous frame (if frame_counter > 1)
+    if frame_counter > 1:
+        message = int(sock.recv(1024).decode('utf-8')) # json.loads(sock.recv())
     
-    # send current frame's data and reward 
+    # send current frame's data and reward
+    sock.send( ( json.dumps( (pixels, speed, frame_counter) ).encode("utf-8") ) )
 
     # send inputs
-    if frame_counter >= 150 and frame_counter < 200:
-        controller.set_gc_buttons(0, drift_right)
-    else:
+    if frame_counter == 1:
         controller.set_gc_buttons(0, wheelie_forward)
+    elif message == -2:
+        controller.set_gc_buttons(0, drift_left)
+    elif message == -1:
+        controller.set_gc_buttons(0, wheelie_left)
+    elif message == 0:
+        controller.set_gc_buttons(0, wheelie_forward)
+    elif message == 1:
+        controller.set_gc_buttons(0, wheelie_right)
+    elif message == 2:
+        controller.set_gc_buttons(0, drift_right)
+    elif message == 3:
+        controller.set_gc_buttons(0, drift_forward)

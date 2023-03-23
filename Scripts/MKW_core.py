@@ -6,6 +6,9 @@ from dolphin import memory
 sys.path.append("C:\\code\\dolphin_env\\Scripts") # path to the folder this file is in
 import MKW_Pointers as Pointers
 
+def getRaceCompletion():
+    return memory.read_u16(Pointers.getRaceCompletionPointer(0x0))
+
 def getPos():
     address = Pointers.getPositionPointer(0x0) # 0x0 first player in the array, to get the most accurate, read playerindex first
     if address == 0:

@@ -7,13 +7,26 @@ def GetGameID():
     return id
 
 # getPointer: read a series of pointers and add an offset at each read
-def getPointer(pointer, offsets):
+def getPointerChain(pointer, offsets):
     for offset in offsets:
         pointer = memory.read_u32(pointer) + offset
         if pointer == 0 or pointer == offset:
             pointer = 0
             break
     return pointer
+
+def getRaceCompletionPointer(Offset):
+    pointer = 0x80000000
+    if GetGameID() == "RMCP01":
+        pointer += 0x9BD730
+    elif GetGameID() == "RMCE01":
+        pointer += 0x9B8F70
+    elif GetGameID() == "RMCJ01":
+        pointer += 0x9BC790
+    elif GetGameID() == "RMCK01":
+        pointer += 0x9ABD70
+
+    return getPointerChain(pointer, [0xC, Offset, 0x24])
 
 def getPrevPositionPointer(Offset):
     pointer = 0x80000000
@@ -26,7 +39,7 @@ def getPrevPositionPointer(Offset):
     elif GetGameID() == "RMCK01":
         pointer += 0x9AFF38
 
-    return getPointer(pointer, [0xC, 0x10, Offset, 0x0, 0x8, 0x90, 0x0])
+    return getPointerChain(pointer, [0xC, 0x10, Offset, 0x0, 0x8, 0x90, 0x0])
 
 def getPositionPointer(Offset):
     pointer = 0x80000000
@@ -39,4 +52,4 @@ def getPositionPointer(Offset):
     elif GetGameID() == "RMCK01":
         pointer += 0x9AFF38
 
-    return getPointer(pointer, [0xC, 0x10, Offset, 0x0, 0x8, 0x90, 0x4, 0x0])
+    return getPointerChain(pointer, [0xC, 0x10, Offset, 0x0, 0x8, 0x90, 0x4, 0x0])
