@@ -140,10 +140,13 @@ while True:
 
     # episode is done if speed falls below threshold or race is complete
     reward_set = False
-    if speed < 37 or race_completion == 4:
-        done = True
+    if speed < 37:
         reward = -10
         reward_set = True
+        done = True
+    elif race_completion == 4:
+        reward = 10
+        done = True
     else:
         done = False
     if frame_counter == 1 or frame_counter % 8 == 0:
