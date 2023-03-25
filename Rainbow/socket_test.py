@@ -31,9 +31,13 @@ with client_socket:
             print("pixels size:", len(pixels), len(pixels[0]), "reward:", reward, "frame:", frame_counter)
 
         if frame_counter >= 160 and frame_counter < 210:
-            client_socket.send(str(DRIFT_RIGHT).encode('utf-8'))
+            client_socket.send(json.dumps( (DRIFT_RIGHT, False) ).encode("utf-8"))
         elif frame_counter < 250:
-            client_socket.send(str(WHEELIE_FORWARD).encode('utf-8'))
+            client_socket.send(json.dumps( (WHEELIE_FORWARD, False) ).encode("utf-8"))
+        elif frame_counter == 1:
+            # reset
+            client_socket.send(json.dumps( (WHEELIE_FORWARD, True) ).encode("utf-8"))
         else:
-            client_socket.send(str(-3).encode('utf-8'))
+            # Do nothing
+            client_socket.send(json.dumps( (-3, False) ).encode("utf-8"))
 client_socket.close()

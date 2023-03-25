@@ -12,6 +12,17 @@ from dolphin import event, gui, controller, savestate
 sys.path.append("C:\\code\\dolphin_env\\Scripts") # path to the folder this file is in
 import MKW_core
 
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+    # Figure out how 'wide' each range is
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+
+    # Convert the left range into a 0-1 range (float)
+    valueScaled = float(value - leftMin) / float(leftSpan)
+
+    # Convert the 0-1 range into a value in the right range.
+    return rightMin + (valueScaled * rightSpan)
+
 ##### INITIALIZATIONS #####
 
 # Initialize all our possible GCInputs.
@@ -80,6 +91,7 @@ if logging:
 savestate.load_from_slot(1)
 
 ##### MAIN TRAINING LOOP #####
+just_reset = False
 while True:
     (width, height, data) = await event.framedrawn()
     
@@ -94,7 +106,7 @@ while True:
     # get game data
     speed = MKW_core.getXYZSpd()
     race_completion = MKW_core.getRaceCompletion()
-    im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((188, 102))
+    im = Image.frombytes('RGBA', (width, height), data).convert("L").resize((84, 84))
     pixels = list(im.getdata())
     width, height = im.size
     pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
@@ -104,36 +116,54 @@ while True:
     gui.draw_text((10, 30), red, f"Speed: {speed}")
     gui.draw_text((10, 50), red, f"Race Completion: {race_completion}")
 
-    # reset if speed falls below threshold or race is complete
-    if speed < 37 or race_completion == 4:
-        if logging:
-            log.write("resetting\n")
-        frame_counter = 0
-        # workaround for save state load issue https://github.com/Felk/dolphin/issues/32
-        keyboard.press(Key.f1)
-        time.sleep(0.1)
-        keyboard.release(Key.f1)
-        continue
+    # get response from previous frame
+    if not just_reset:
+        if frame_counter == 1 or frame_counter % 8 == 0:
+            message = json.loads(sock.recv(4096).decode('utf-8'))
+            action = message[0]
+            reset_requested = message[1]
+        else:
+            reset_requested = False
+        
+        if reset_requested:
+            if logging:
+                log.write("resetting\n")
+            frame_counter = 0
+            # workaround for save state load issue https://github.com/Felk/dolphin/issues/32
+            keyboard.press(Key.f1)
+            time.sleep(0.1)
+            keyboard.release(Key.f1)
+            just_reset = True
+            continue
+    else:
+        just_reset = False
 
-    # get response from previous frame (if frame_counter > 1)
-    if frame_counter > 1:
-        message = int(sock.recv(1024).decode('utf-8')) # json.loads(sock.recv())
-    
-    # send current frame's data and reward
-    sock.send( ( json.dumps( (pixels, speed, frame_counter) ).encode("utf-8") ) )
+    # episode is done if speed falls below threshold or race is complete
+    reward_set = False
+    if speed < 37 or race_completion == 4:
+        done = True
+        reward = -10
+        reward_set = True
+    else:
+        done = False
+    if frame_counter == 1 or frame_counter % 8 == 0:
+        # send current frame's data and reward
+        if not reward_set:
+            reward = translate(speed, 0, 120, -1, 1)
+        sock.send( ( json.dumps( (pixels, reward, done, frame_counter) ).encode("utf-8") ) )
 
     # send inputs
     if frame_counter == 1:
         controller.set_gc_buttons(0, wheelie_forward)
-    elif message == -2:
+    elif action == -2:
         controller.set_gc_buttons(0, drift_left)
-    elif message == -1:
+    elif action == -1:
         controller.set_gc_buttons(0, wheelie_left)
-    elif message == 0:
+    elif action == 0:
         controller.set_gc_buttons(0, wheelie_forward)
-    elif message == 1:
+    elif action == 1:
         controller.set_gc_buttons(0, wheelie_right)
-    elif message == 2:
+    elif action == 2:
         controller.set_gc_buttons(0, drift_right)
-    elif message == 3:
+    elif action == 3:
         controller.set_gc_buttons(0, drift_forward)
