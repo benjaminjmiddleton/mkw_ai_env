@@ -4,7 +4,6 @@ import json
 import socket
 
 sys.path.append("C:\\code\\dolphin_env\\venv\\Lib\\site-packages") # your python installation path
-from PIL import Image
 from pynput.keyboard import Controller, Key
 
 from dolphin import event, gui, controller, savestate
