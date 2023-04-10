@@ -22,3 +22,8 @@ For similar reasons, the path to your venv or python installation will also need
 Then, agent_script.py will be able to be run from the executable for Dolphin with Python Scripting Support (https://github.com/Felk/dolphin)
 
 Before running agent_script.py, you should first start running the Rainbow agent in a terminal. It will wait for the connection from dolphin to begin.
+
+Example agent on Luigi's Circuit with naive reward function:
+https://drive.google.com/file/d/1dJF1GY61CEN9w-zd9BitY7Be1eRwTIOh/view?usp=sharing
+
+This agent can be greatly improved by adding a smarter reward function using a checkpointing system and small reward for mini-turbo.
