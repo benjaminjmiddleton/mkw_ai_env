@@ -5,7 +5,7 @@ and with Python version 3.8 (as per Felk's repository).
 
 A few functions have been reimplemented from the Dolphin-Lua-Core (https://github.com/SwareJonge/Dolphin-Lua-Core) to work with the Python repo. The files Scripts/MKW_Pointers.py and Scripts/MKW_core.py contain these functions and a few others, and may be useful for translating the rest of the scripts that come with Dolphin-Lua-Core for MKW.
 
-# Notes for Setting This Up
+# Building An Agent With This Repo
 
 Because these scripts are run in the dolphin executable, you need to append the true path of the scripts you want to import using sys.path.append().
 
